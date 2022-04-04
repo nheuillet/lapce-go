@@ -1,0 +1,14 @@
+name = "lapce-go"
+display-name = "Go"
+description = "Go for Lapce: powered by Gopls"
+version = "0.1.1"
+author = "Lapce"
+repository = "lapce/lapce-go"
+wasm = "lapce-go.wasm"
+
+[configuration]
+language_id = "go"
+[configuration.options]
+#logfile = "lapce-go-err.txt"
+#[configuration.options.build]
+#[configuration.options.ui]
