@@ -1,12 +1,9 @@
-// use std::{
-//     path::PathBuf,
-//     process::Command,
-//     env,
-// };
+use std::env;
 
-use lapce_plugin::{register_plugin, start_lsp, LapcePlugin};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value};
+
+use lapce_plugin::{register_plugin, start_lsp, LapcePlugin};
 
 #[derive(Default)]
 struct State {}
@@ -28,31 +25,17 @@ register_plugin!(State);
 
 impl LapcePlugin for State {
     fn initialize(&mut self, info: serde_json::Value) {
-        eprintln!("Starting lapce-go plugin");
+        eprintln!("Starting lapce-go plugin!");
         let info = serde_json::from_value::<PluginInfo>(info).unwrap();
-        let go_bin_path =  String::from("/home/noe/go/bin");
-        // let go_bin_path = match env::var("GOBIN") {
-        //     Ok(var) => var,
-        //     Err(error) => panic!("Problem with GOBIN var: {:?}", error),
-        // };
-        let file_name = format!("{}/gopls", go_bin_path);
+        let go_bin_path = match env::var("GOBIN") {
+            Ok(var) => var,
+            Err(error) => panic!("Problem with GOBIN var: {:?}", error),
+        };
 
-        // if !PathBuf::from(&file_name).exists() {
-        //     if cfg!(target_os = "windows") {
-        //         Command::new("cmd")
-        //                 .args(["/C", "go", "install", "golang.org/x/tools/gopls@latest"])
-        //                 .output()
-        //                 .expect("failed to execute process")
-        //     } else {
-        //         Command::new("sh")
-        //                 .arg("-c")
-        //                 .args(["go", "install", "golang.org/x/tools/gopls@latest"])
-        //                 .output()
-        //                 .expect("failed to execute process")
-        //     };
-        // }
+        let file_name = format!("{}/gopls", go_bin_path.strip_prefix("\"").unwrap().strip_suffix("\"").unwrap());
+        eprintln!("wtf {}", file_name);
 
-        start_lsp(&file_name, "go", info.configuration.options)
+        start_lsp(&file_name, info.configuration.language_id.as_str(), info.configuration.options)
     }
 
 }

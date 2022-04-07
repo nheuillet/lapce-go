@@ -8,7 +8,6 @@ wasm = "lapce-go.wasm"
 
 [configuration]
 language_id = "go"
+env_command = "go env"
 [configuration.options]
-#logfile = "lapce-go-err.txt"
-#[configuration.options.build]
-#[configuration.options.ui]
+semanticTokens = true
