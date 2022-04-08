@@ -33,7 +33,6 @@ impl LapcePlugin for State {
         };
 
         let file_name = format!("{}/gopls", go_bin_path.strip_prefix("\"").unwrap().strip_suffix("\"").unwrap());
-        eprintln!("wtf {}", file_name);
 
         start_lsp(&file_name, info.configuration.language_id.as_str(), info.configuration.options)
     }
