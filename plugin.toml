@@ -9,5 +9,10 @@ wasm = "lapce-go.wasm"
 [configuration]
 language_id = "go"
 env_command = "go env"
+[configuration.options.binary]
+binary_args = [
+    "-rpc.trace",
+    "-logfile=gopls-logfile.txt"
+]
 [configuration.options]
 semanticTokens = true
