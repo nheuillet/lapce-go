@@ -29,7 +29,20 @@ impl LapcePlugin for State {
         let info = serde_json::from_value::<PluginInfo>(info).unwrap();
         let go_bin_path = match env::var("GOBIN") {
             Ok(var) => var,
-            Err(error) => panic!("Problem with GOBIN var: {:?}", error),
+            Err(error) => match error {
+                Err(env::VarError::NotPresent) => {
+                    match env::var("GOPATH") {
+                        Ok(var) => format!("{var}/bin"),
+                        Err(error) => {
+                            panic!("Couldn't get GOPATH: {error}")
+                        }
+                    }
+                },
+                Err(env::VarError::NotUnicode(val)) => {
+                    let val = val.to_string_lossy();
+                    panic!("GOBIN is not in unicode format: '{val}'")
+                }
+            }
         };
 
         let file_name = format!("{}/gopls", go_bin_path.strip_prefix("\"").unwrap().strip_suffix("\"").unwrap());
