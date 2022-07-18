@@ -9,6 +9,7 @@ wasm = "lapce-go.wasm"
 [configuration]
 language_id = "go"
 env_command = "go env"
+system_lsp = true
 [configuration.options.binary]
 args = [
     "-rpc.trace",
