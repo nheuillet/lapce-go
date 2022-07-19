@@ -24,21 +24,26 @@ pub struct Configuration {
 
 register_plugin!(State);
 
+fn strip_quotes(var: String) -> String {
+    match var.strip_prefix("\"") {
+        Some(stripped_var) => match stripped_var.strip_suffix("\"") {
+            Some(stripped_var) => stripped_var.to_owned(),
+            None => var,
+        },
+        None => var,
+    }
+}
+
 impl LapcePlugin for State {
     fn initialize(&mut self, info: serde_json::Value) {
         eprintln!("[lapce-go] starting plugin");
         let info = serde_json::from_value::<PluginInfo>(info).unwrap();
 
         let exec_path = if !info.configuration.system_lsp {
-            let go_bin_path = match env::var("GOBIN") {
+            let go_bin_path = match env::var("GOBIN").map(strip_quotes) {
                 Ok(var) => var,
                 Err(error) => match error {
-                    env::VarError::NotPresent => match env::var("GOPATH") {
-                        Ok(var) => format!("{var}/bin"),
-                        Err(error) => {
-                            panic!("Couldn't get GOPATH: {error}")
-                        }
-                    },
+                    env::VarError::NotPresent => String::from(""),
                     env::VarError::NotUnicode(val) => {
                         let val = val.to_string_lossy();
                         panic!("GOBIN is not in unicode format: '{val}'")
@@ -46,7 +51,18 @@ impl LapcePlugin for State {
                 },
             };
 
-            format!("{}/gopls", go_bin_path.trim_matches('"'))
+            let go_bin_path = if go_bin_path.is_empty() {
+                match env::var("GOPATH").map(strip_quotes) {
+                    Ok(var) => format!("{var}/bin"),
+                    Err(error) => {
+                        panic!("Couldn't get GOPATH: {error}")
+                    }
+                }
+            } else {
+                go_bin_path
+            };
+
+            format!("{}/gopls", go_bin_path)
         } else {
             String::from("gopls")
         };
